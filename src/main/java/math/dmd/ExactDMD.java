@@ -25,6 +25,9 @@ import net.jamu.matrix.Matrices;
 import net.jamu.matrix.MatrixD;
 import net.jamu.matrix.SvdEconD;
 
+/**
+ * Exact DMD for real-valued observations.
+ */
 public class ExactDMD {
 
     private final MatrixD data;
