@@ -21,7 +21,7 @@ import net.jamu.matrix.MatrixD;
  * Approximately optimal Singular Value truncation after Gavish and Donoho
  * (2014).
  * 
- * @see https://arxiv.org/pdf/1305.5870.pdf
+ * @see "https://arxiv.org/pdf/1305.5870.pdf"
  */
 class SVHT {
 
