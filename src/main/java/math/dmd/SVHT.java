@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stefan Zobel
+ * Copyright 2020, 2021 Stefan Zobel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,9 @@ class SVHT {
     static final float FAIR_SHARE_FLT = 1.0f - 1e-4f;
 
     static int thresholdD(MatrixD data, double[] singularValues) {
+        if (singularValues[0] <= MACH_EPS_DBL) {
+            return 0;
+        }
         double omega = computeOmega(data);
         double median = medianD(singularValues);
         double cutoff = omega * median;
@@ -44,6 +47,9 @@ class SVHT {
     }
 
     static int thresholdF(MatrixF data, float[] singularValues) {
+        if (singularValues[0] <= MACH_EPS_FLT) {
+            return 0;
+        }
         float omega = (float) computeOmega(data);
         float median = medianF(singularValues);
         float cutoff = omega * median;
