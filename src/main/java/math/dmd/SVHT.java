@@ -40,6 +40,10 @@ class SVHT {
         if (singularValues[0] <= MACH_EPS_DBL) {
             return 0;
         }
+        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_DBL)) {
+            // try to guard against high-rank random matrices
+            return classicThresholdD(data.numRows(), data.numColumns(), singularValues);
+        }
         double omega = computeOmega(data);
         double median = medianD(singularValues);
         double cutoff = omega * median;
@@ -50,10 +54,32 @@ class SVHT {
         if (singularValues[0] <= MACH_EPS_FLT) {
             return 0;
         }
+        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_FLT)) {
+            // try to guard against high-rank random matrices
+            return classicThresholdF(data.numRows(), data.numColumns(), singularValues);
+        }
         float omega = (float) computeOmega(data);
         float median = medianF(singularValues);
         float cutoff = omega * median;
         return thresholdF(singularValues, cutoff);
+    }
+
+    private static double getSigmaMin(double[] singularValues) {
+        for (int i = singularValues.length - 1; i >= 0; --i) {
+            if (singularValues[i] > TOL_DBL) {
+                return singularValues[i];
+            }
+        }
+        return singularValues[0];
+    }
+
+    private static float getSigmaMin(float[] singularValues) {
+        for (int i = singularValues.length - 1; i >= 0; --i) {
+            if (singularValues[i] > TOL_FLT) {
+                return singularValues[i];
+            }
+        }
+        return singularValues[0];
     }
 
     private static double medianD(double[] singularValues) {
@@ -105,6 +131,32 @@ class SVHT {
         double betaSqr = beta * beta;
         double betaCub = betaSqr * beta;
         return 0.56 * betaCub - 0.95 * betaSqr + 1.82 * beta + 1.43;
+    }
+
+    private static int classicThresholdD(int m, int n, double[] sv) {
+        double eps = Math.max(m, n) * MACH_EPS_DBL;
+        double cutoff = eps * sv[0];
+        int idx = 0;
+        for (int i = 0; i < sv.length; ++i) {
+            if (sv[i] < cutoff) {
+                break;
+            }
+            idx = i;
+        }
+        return idx + 1;
+    }
+
+    private static int classicThresholdF(int m, int n, float[] sv) {
+        float eps = Math.max(m, n) * MACH_EPS_FLT;
+        float cutoff = eps * sv[0];
+        int idx = 0;
+        for (int i = 0; i < sv.length; ++i) {
+            if (sv[i] < cutoff) {
+                break;
+            }
+            idx = i;
+        }
+        return idx + 1;
     }
 
     private static int thresholdD(double[] singularValues, double cutoff) {
