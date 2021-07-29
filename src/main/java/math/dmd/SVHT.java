@@ -15,7 +15,9 @@
  */
 package math.dmd;
 
+import net.jamu.matrix.Dimensions;
 import net.jamu.matrix.MatrixD;
+import net.jamu.matrix.MatrixF;
 
 /**
  * Approximately optimal Singular Value truncation after Gavish and Donoho
@@ -27,21 +29,32 @@ class SVHT {
 
     /** The IEEE 754 machine epsilon from Cephes: (2^-53) */
     static final double MACH_EPS_DBL = 1.11022302462515654042e-16;
-    static final double TOL = 5.0 * MACH_EPS_DBL;
-    static final double FAIR_SHARE = 1.0 - 1e-4;
+    /** The IEEE 754 single precision machine epsilon: (2^-24) */
+    static final float MACH_EPS_FLT = 5.9604644775390625e-8f;
+    static final double TOL_DBL = 5.0 * MACH_EPS_DBL;
+    static final float TOL_FLT = 5.0f * MACH_EPS_FLT;
+    static final double FAIR_SHARE_DBL = 1.0 - 1e-4;
+    static final float FAIR_SHARE_FLT = 1.0f - 1e-4f;
 
-    static int threshold(MatrixD data, double[] singularValues) {
+    static int thresholdD(MatrixD data, double[] singularValues) {
         double omega = computeOmega(data);
-        double median = median(singularValues);
+        double median = medianD(singularValues);
         double cutoff = omega * median;
-        return threshold(singularValues, cutoff);
+        return thresholdD(singularValues, cutoff);
     }
 
-    private static double median(double[] singularValues) {
+    static int thresholdF(MatrixF data, float[] singularValues) {
+        float omega = (float) computeOmega(data);
+        float median = medianF(singularValues);
+        float cutoff = omega * median;
+        return thresholdF(singularValues, cutoff);
+    }
+
+    private static double medianD(double[] singularValues) {
         int len = singularValues.length;
         int endIdx = len - 1;
         for (int i = endIdx; i >= 0; --i) {
-            if (singularValues[i] > TOL) {
+            if (singularValues[i] > TOL_DBL) {
                 endIdx = i;
                 break;
             }
@@ -57,7 +70,27 @@ class SVHT {
         }
     }
 
-    private static double computeOmega(MatrixD data) {
+    private static float medianF(float[] singularValues) {
+        int len = singularValues.length;
+        int endIdx = len - 1;
+        for (int i = endIdx; i >= 0; --i) {
+            if (singularValues[i] > TOL_FLT) {
+                endIdx = i;
+                break;
+            }
+        }
+        if (endIdx < len - 1) {
+            len = endIdx + 1;
+        }
+        if (len % 2 != 0) {
+            return singularValues[(len - 1) / 2];
+        } else {
+            int mid = len / 2;
+            return (singularValues[mid - 1] + singularValues[mid]) / 2.0f;
+        }
+    }
+
+    private static double computeOmega(Dimensions data) {
         int rows = data.numRows();
         int cols = data.numColumns();
         int m = Math.min(rows, cols);
@@ -68,7 +101,7 @@ class SVHT {
         return 0.56 * betaCub - 0.95 * betaSqr + 1.82 * beta + 1.43;
     }
 
-    private static int threshold(double[] singularValues, double cutoff) {
+    private static int thresholdD(double[] singularValues, double cutoff) {
         int idx = 0;
         for (int i = 0; i < singularValues.length; ++i) {
             if (singularValues[i] <= cutoff) {
@@ -78,7 +111,7 @@ class SVHT {
             }
         }
         if (idx > 0) {
-            double cap = FAIR_SHARE * sum(singularValues);
+            double cap = FAIR_SHARE_DBL * sumD(singularValues);
             double sum = 0.0;
             int lastIdx = 0;
             for (int i = 0; i <= idx && sum < cap; ++i) {
@@ -92,11 +125,47 @@ class SVHT {
         return idx + 1;
     }
 
-    private static double sum(double[] singularValues) {
+    private static int thresholdF(float[] singularValues, float cutoff) {
+        int idx = 0;
+        for (int i = 0; i < singularValues.length; ++i) {
+            if (singularValues[i] <= cutoff) {
+                // idx of last sv > cutoff
+                idx = i - 1;
+                break;
+            }
+        }
+        if (idx > 0) {
+            float cap = FAIR_SHARE_FLT * sumF(singularValues);
+            float sum = 0.0f;
+            int lastIdx = 0;
+            for (int i = 0; i <= idx && sum < cap; ++i) {
+                sum += singularValues[i];
+                lastIdx = i;
+            }
+            idx = Math.min(idx, lastIdx);
+        }
+        // estimated rank
+        idx = (idx < 0) ? 0 : idx;
+        return idx + 1;
+    }
+
+    private static double sumD(double[] singularValues) {
         double sum = 0.0;
         for (int i = 0; i < singularValues.length; ++i) {
             double sv = singularValues[i];
-            if (sv <= TOL) {
+            if (sv <= TOL_DBL) {
+                break;
+            }
+            sum += sv;
+        }
+        return sum;
+    }
+
+    private static float sumF(float[] singularValues) {
+        float sum = 0.0f;
+        for (int i = 0; i < singularValues.length; ++i) {
+            double sv = singularValues[i];
+            if (sv <= TOL_FLT) {
                 break;
             }
             sum += sv;

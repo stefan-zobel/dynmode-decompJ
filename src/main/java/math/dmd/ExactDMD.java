@@ -127,7 +127,7 @@ public class ExactDMD {
     }
 
     private int estimateRank(SvdEconD svd) {
-        return SVHT.threshold(data, svd.getS());
+        return SVHT.thresholdD(data, svd.getS());
     }
 
     private static SvdEconD computeSvd(MatrixD data) {
