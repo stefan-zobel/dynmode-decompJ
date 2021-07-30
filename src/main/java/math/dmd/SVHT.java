@@ -40,10 +40,10 @@ class SVHT {
         if (singularValues[0] <= MACH_EPS_DBL) {
             return 0;
         }
-        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_DBL)) {
-            // try to guard against high-rank random matrices
-            return classicThresholdD(data.numRows(), data.numColumns(), singularValues);
-        }
+//        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_DBL)) {
+//            // try to guard against high-rank matrices
+//            return classicThresholdD(data.numRows(), data.numColumns(), singularValues);
+//        }
         double omega = computeOmega(data);
         double median = medianD(singularValues);
         double cutoff = omega * median;
@@ -54,10 +54,10 @@ class SVHT {
         if (singularValues[0] <= MACH_EPS_FLT) {
             return 0;
         }
-        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_FLT)) {
-            // try to guard against high-rank random matrices
-            return classicThresholdF(data.numRows(), data.numColumns(), singularValues);
-        }
+//        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_FLT)) {
+//            // try to guard against high-rank matrices
+//            return classicThresholdF(data.numRows(), data.numColumns(), singularValues);
+//        }
         float omega = (float) computeOmega(data);
         float median = medianF(singularValues);
         float cutoff = omega * median;
