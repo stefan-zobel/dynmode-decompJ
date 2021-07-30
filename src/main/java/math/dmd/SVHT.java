@@ -70,11 +70,11 @@ class SVHT {
         return singularValues[0];
     }
 
-    private static double median(double[] singularValues) {
-        int len = singularValues.length;
+    static double median(double[] values) {
+        int len = values.length;
         int endIdx = len - 1;
         for (int i = endIdx; i >= 0; --i) {
-            if (singularValues[i] > TOL_DBL) {
+            if (values[i] > TOL_DBL) {
                 endIdx = i;
                 break;
             }
@@ -83,18 +83,18 @@ class SVHT {
             len = endIdx + 1;
         }
         if (len % 2 != 0) {
-            return singularValues[(len - 1) / 2];
+            return values[(len - 1) / 2];
         } else {
             int mid = len / 2;
-            return (singularValues[mid - 1] + singularValues[mid]) / 2.0;
+            return (values[mid - 1] + values[mid]) / 2.0;
         }
     }
 
-    private static float median(float[] singularValues) {
-        int len = singularValues.length;
+    static float median(float[] values) {
+        int len = values.length;
         int endIdx = len - 1;
         for (int i = endIdx; i >= 0; --i) {
-            if (singularValues[i] > TOL_FLT) {
+            if (values[i] > TOL_FLT) {
                 endIdx = i;
                 break;
             }
@@ -103,14 +103,14 @@ class SVHT {
             len = endIdx + 1;
         }
         if (len % 2 != 0) {
-            return singularValues[(len - 1) / 2];
+            return values[(len - 1) / 2];
         } else {
             int mid = len / 2;
-            return (singularValues[mid - 1] + singularValues[mid]) / 2.0f;
+            return (values[mid - 1] + values[mid]) / 2.0f;
         }
     }
 
-    private static double computeOmega(int rows, int cols) {
+    static double computeOmega(int rows, int cols) {
         int m = Math.min(rows, cols);
         int n = Math.max(rows, cols);
         double beta = m / (double) n;
@@ -120,6 +120,9 @@ class SVHT {
     }
 
     private static int threshold_(double[] singularValues, double cutoff) {
+        if (singularValues[0] < cutoff) {
+            return 0;
+        }
         int idx = 0;
         for (int i = 0; i < singularValues.length; ++i) {
             if (singularValues[i] <= cutoff) {
@@ -138,12 +141,15 @@ class SVHT {
             }
             idx = Math.min(idx, lastIdx);
         }
-        // estimated rank
+        // estimated optimal hard threshold
         idx = (idx < 0) ? 0 : idx;
         return idx + 1;
     }
 
     private static int threshold_(float[] singularValues, float cutoff) {
+        if (singularValues[0] < cutoff) {
+            return 0;
+        }
         int idx = 0;
         for (int i = 0; i < singularValues.length; ++i) {
             if (singularValues[i] <= cutoff) {
@@ -162,15 +168,15 @@ class SVHT {
             }
             idx = Math.min(idx, lastIdx);
         }
-        // estimated rank
+        // estimated optimal hard threshold
         idx = (idx < 0) ? 0 : idx;
         return idx + 1;
     }
 
-    private static double sum(double[] singularValues) {
+    static double sum(double[] values) {
         double sum = 0.0;
-        for (int i = 0; i < singularValues.length; ++i) {
-            double sv = singularValues[i];
+        for (int i = 0; i < values.length; ++i) {
+            double sv = values[i];
             if (sv <= TOL_DBL) {
                 break;
             }
@@ -179,10 +185,10 @@ class SVHT {
         return sum;
     }
 
-    private static float sum(float[] singularValues) {
+    static float sum(float[] values) {
         float sum = 0.0f;
-        for (int i = 0; i < singularValues.length; ++i) {
-            double sv = singularValues[i];
+        for (int i = 0; i < values.length; ++i) {
+            double sv = values[i];
             if (sv <= TOL_FLT) {
                 break;
             }
