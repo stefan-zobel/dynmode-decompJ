@@ -23,6 +23,7 @@ import net.jamu.matrix.ComplexMatrixD;
 import net.jamu.matrix.EvdComplexD;
 import net.jamu.matrix.Matrices;
 import net.jamu.matrix.MatrixD;
+import net.jamu.matrix.SvdD;
 import net.jamu.matrix.SvdEconD;
 
 /**
@@ -127,7 +128,7 @@ public class ExactDMD {
     }
 
     private int estimateRank(SvdEconD svd) {
-        return SVHT.threshold(data.numRows(), data.numColumns(), svd.getS());
+        return SvdD.optimalHardThreshold(data.numRows(), data.numColumns(), svd);
     }
 
     private static SvdEconD computeSvd(MatrixD data) {
