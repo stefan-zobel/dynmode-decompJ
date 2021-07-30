@@ -15,13 +15,9 @@
  */
 package math.dmd;
 
-import net.jamu.matrix.Dimensions;
-import net.jamu.matrix.MatrixD;
-import net.jamu.matrix.MatrixF;
-
 /**
- * Approximately optimal Singular Value truncation after Gavish and Donoho
- * (2014).
+ * Approximately optimal Singular Value truncation ("Singular Values Hard
+ * Threshold (SVHT)") after Gavish and Donoho (2014).
  * 
  * @see "https://arxiv.org/pdf/1305.5870.pdf"
  */
@@ -33,38 +29,30 @@ class SVHT {
     static final float MACH_EPS_FLT = 5.9604644775390625e-8f;
     static final double TOL_DBL = 5.0 * MACH_EPS_DBL;
     static final float TOL_FLT = 5.0f * MACH_EPS_FLT;
-    static final double FAIR_SHARE_DBL = 1.0 - 1e-4;
-    static final float FAIR_SHARE_FLT = 1.0f - 1e-4f;
+    static final double BROAD_SHARE_DBL = 1.0 - 1e-4;
+    static final float BROAD_SHARE_FLT = 1.0f - 1e-4f;
 
-    static int thresholdD(MatrixD data, double[] singularValues) {
+    static int threshold(int rows, int cols, double[] singularValues) {
         if (singularValues[0] <= MACH_EPS_DBL) {
             return 0;
         }
-//        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_DBL)) {
-//            // try to guard against high-rank matrices
-//            return classicThresholdD(data.numRows(), data.numColumns(), singularValues);
-//        }
-        double omega = computeOmega(data);
-        double median = medianD(singularValues);
+        double omega = computeOmega(rows, cols);
+        double median = median(singularValues);
         double cutoff = omega * median;
-        return thresholdD(singularValues, cutoff);
+        return threshold_(singularValues, cutoff);
     }
 
-    static int thresholdF(MatrixF data, float[] singularValues) {
+    static int threshold(int rows, int cols, float[] singularValues) {
         if (singularValues[0] <= MACH_EPS_FLT) {
             return 0;
         }
-//        if (!(getSigmaMin(singularValues) / singularValues[0] <= TOL_FLT)) {
-//            // try to guard against high-rank matrices
-//            return classicThresholdF(data.numRows(), data.numColumns(), singularValues);
-//        }
-        float omega = (float) computeOmega(data);
-        float median = medianF(singularValues);
+        float omega = (float) computeOmega(rows, cols);
+        float median = median(singularValues);
         float cutoff = omega * median;
-        return thresholdF(singularValues, cutoff);
+        return threshold_(singularValues, cutoff);
     }
 
-    private static double getSigmaMin(double[] singularValues) {
+    static double getSigmaMin(double[] singularValues) {
         for (int i = singularValues.length - 1; i >= 0; --i) {
             if (singularValues[i] > TOL_DBL) {
                 return singularValues[i];
@@ -73,7 +61,7 @@ class SVHT {
         return singularValues[0];
     }
 
-    private static float getSigmaMin(float[] singularValues) {
+    static float getSigmaMin(float[] singularValues) {
         for (int i = singularValues.length - 1; i >= 0; --i) {
             if (singularValues[i] > TOL_FLT) {
                 return singularValues[i];
@@ -82,7 +70,7 @@ class SVHT {
         return singularValues[0];
     }
 
-    private static double medianD(double[] singularValues) {
+    private static double median(double[] singularValues) {
         int len = singularValues.length;
         int endIdx = len - 1;
         for (int i = endIdx; i >= 0; --i) {
@@ -102,7 +90,7 @@ class SVHT {
         }
     }
 
-    private static float medianF(float[] singularValues) {
+    private static float median(float[] singularValues) {
         int len = singularValues.length;
         int endIdx = len - 1;
         for (int i = endIdx; i >= 0; --i) {
@@ -122,9 +110,7 @@ class SVHT {
         }
     }
 
-    private static double computeOmega(Dimensions data) {
-        int rows = data.numRows();
-        int cols = data.numColumns();
+    private static double computeOmega(int rows, int cols) {
         int m = Math.min(rows, cols);
         int n = Math.max(rows, cols);
         double beta = m / (double) n;
@@ -133,33 +119,7 @@ class SVHT {
         return 0.56 * betaCub - 0.95 * betaSqr + 1.82 * beta + 1.43;
     }
 
-    private static int classicThresholdD(int m, int n, double[] sv) {
-        double eps = Math.max(m, n) * MACH_EPS_DBL;
-        double cutoff = eps * sv[0];
-        int idx = 0;
-        for (int i = 0; i < sv.length; ++i) {
-            if (sv[i] < cutoff) {
-                break;
-            }
-            idx = i;
-        }
-        return idx + 1;
-    }
-
-    private static int classicThresholdF(int m, int n, float[] sv) {
-        float eps = Math.max(m, n) * MACH_EPS_FLT;
-        float cutoff = eps * sv[0];
-        int idx = 0;
-        for (int i = 0; i < sv.length; ++i) {
-            if (sv[i] < cutoff) {
-                break;
-            }
-            idx = i;
-        }
-        return idx + 1;
-    }
-
-    private static int thresholdD(double[] singularValues, double cutoff) {
+    private static int threshold_(double[] singularValues, double cutoff) {
         int idx = 0;
         for (int i = 0; i < singularValues.length; ++i) {
             if (singularValues[i] <= cutoff) {
@@ -169,7 +129,7 @@ class SVHT {
             }
         }
         if (idx > 0) {
-            double cap = FAIR_SHARE_DBL * sumD(singularValues);
+            double cap = BROAD_SHARE_DBL * sum(singularValues);
             double sum = 0.0;
             int lastIdx = 0;
             for (int i = 0; i <= idx && sum < cap; ++i) {
@@ -183,7 +143,7 @@ class SVHT {
         return idx + 1;
     }
 
-    private static int thresholdF(float[] singularValues, float cutoff) {
+    private static int threshold_(float[] singularValues, float cutoff) {
         int idx = 0;
         for (int i = 0; i < singularValues.length; ++i) {
             if (singularValues[i] <= cutoff) {
@@ -193,7 +153,7 @@ class SVHT {
             }
         }
         if (idx > 0) {
-            float cap = FAIR_SHARE_FLT * sumF(singularValues);
+            float cap = BROAD_SHARE_FLT * sum(singularValues);
             float sum = 0.0f;
             int lastIdx = 0;
             for (int i = 0; i <= idx && sum < cap; ++i) {
@@ -207,7 +167,7 @@ class SVHT {
         return idx + 1;
     }
 
-    private static double sumD(double[] singularValues) {
+    private static double sum(double[] singularValues) {
         double sum = 0.0;
         for (int i = 0; i < singularValues.length; ++i) {
             double sv = singularValues[i];
@@ -219,7 +179,7 @@ class SVHT {
         return sum;
     }
 
-    private static float sumF(float[] singularValues) {
+    private static float sum(float[] singularValues) {
         float sum = 0.0f;
         for (int i = 0; i < singularValues.length; ++i) {
             double sv = singularValues[i];

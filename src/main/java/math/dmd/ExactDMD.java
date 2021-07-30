@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stefan Zobel
+ * Copyright 2020, 2021 Stefan Zobel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ public class ExactDMD {
     }
 
     private int estimateRank(SvdEconD svd) {
-        return SVHT.thresholdD(data, svd.getS());
+        return SVHT.threshold(data.numRows(), data.numColumns(), svd.getS());
     }
 
     private static SvdEconD computeSvd(MatrixD data) {
