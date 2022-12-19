@@ -1,5 +1,4 @@
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/stefan-zobel/dynmode-decompJ.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stefan-zobel/dynmode-decompJ/alerts/)
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/stefan-zobel/dynmode-decompJ.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/stefan-zobel/dynmode-decompJ/context:java)
+[![CodeQL](https://github.com/stefan-zobel/dynmode-decompJ/actions/workflows/codeql.yml/badge.svg)](https://github.com/stefan-zobel/dynmode-decompJ/actions/workflows/codeql.yml)
 
 # dynmode-decompJ
 
