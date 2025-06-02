@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Stefan Zobel
+ * Copyright 2020, 2025 Stefan Zobel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class RealValuedDataExample {
         double normData = data.normF();
         System.out.println("reconstructed: " + normDmd);
         System.out.println("original     : " + normData);
-        System.out.println("Matrices.approxEqual (1e-8): " + Matrices.approxEqual(data, pred));
+        System.out.println("Matrices.approxEqual (1e-7): " + Matrices.approxEqual(data, pred, 1.0e-7));
         System.out.println("Matrices.distance: " + Matrices.distance(data, pred));
 
         // now attempt to predict the future starting from 4.0 * PI for t_num
@@ -112,7 +112,7 @@ public class RealValuedDataExample {
 
     // merged spatio-temporal signal
     private static Zd f(double x, double t) {
-        return f1a(x, t).add(f2a(x, t));
+        return f1a(x, t).add(f2a(x, t)).add(f3a(x, t)).add(f4a(x, t));
     }
 
     // first spatio-temporal pattern
@@ -126,6 +126,20 @@ public class RealValuedDataExample {
     private static Zd f2a(double x, double t) {
         Zd zt = new ZdImpl(0.1, -2.2 * t).exp();
         Zd zx = new ZdImpl(sech(x - 3.0), -Math.tanh(x));
+        return zt.mul(zx);
+    }
+
+    // third spatio-temporal pattern
+    private static Zd f3a(double x, double t) {
+        Zd zt = new ZdImpl(-3.3, 0.15 * t).exp();
+        Zd zx = new ZdImpl(Math.sin(x + -0.5), Math.cos(x));
+        return zt.mul(zx);
+    }
+
+    // fourth spatio-temporal pattern
+    private static Zd f4a(double x, double t) {
+        Zd zt = new ZdImpl(-3.3, -0.15 * t).exp();
+        Zd zx = new ZdImpl(Math.sin(x + 0.5), -Math.cos(x));
         return zt.mul(zx);
     }
 
