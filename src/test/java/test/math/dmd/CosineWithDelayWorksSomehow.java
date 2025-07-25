@@ -113,32 +113,8 @@ public class CosineWithDelayWorksSomehow {
         System.out.println("Matrices.distance: " + Matrices.distance(newData, fut));
     }
 
-    // setup Hankel matrix
-    private static MatrixD timeDelayed(MatrixD m, int delays) {
-        if (delays < 0 || delays >= m.numColumns()) {
-            throw new IllegalArgumentException("delays: " + delays);
-        }
-        if (delays == 0) {
-            return m; // copy ?
-        }
-        MatrixD H = Matrices.createD(m.numRows() * (delays + 1), m.numColumns() - delays);
-        for (int col = 0; col < m.numColumns() - delays; ++col) {
-            int row_ = 0;
-            int col_ = col;
-            for (int row = 0; row < m.numRows() * (delays + 1); ++row) {
-                H.setUnsafe(row, col, m.getUnsafe(row_, col_));
-                ++row_;
-                if (row_ == m.numRows()) {
-                    row_ = 0;
-                    ++col_;
-                }
-            }
-        }
-        return H;
-    }
-
     private static MatrixD setupMeasurementsMatrix(LinSpace time, int delays) {
-        return timeDelayed(setupMeasurementsMatrix_(time), delays);
+        return Matrices.timeDelayEmbeddingD(setupMeasurementsMatrix_(time), delays);
     }
 
     private static MatrixD setupMeasurementsMatrix_(LinSpace time) {

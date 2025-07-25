@@ -5,14 +5,14 @@
     <groupId>net.sourceforge.streamsupport</groupId>
     <artifactId>dynmode-decompJ</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.4</version>
+    <version>0.9.5</version>
     <name>dynmode-decompJ</name>
 
     <dependencies>
         <dependency>
             <groupId>net.sourceforge.streamsupport</groupId>
             <artifactId>jamu</artifactId>
-            <version>[1.4.6,2.0)</version>
+            <version>[1.4.7,2.0)</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
