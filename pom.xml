@@ -5,7 +5,7 @@
     <groupId>net.sourceforge.streamsupport</groupId>
     <artifactId>dynmode-decompJ</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.5</version>
+    <version>0.9.6</version>
     <name>dynmode-decompJ</name>
 
     <dependencies>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>net.sourceforge.streamsupport</groupId>
             <artifactId>math-base</artifactId>
-            <version>1.4.0</version>
+            <version>[1.4.1,2.0)</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
